@@ -1,11 +1,11 @@
-from flask import Flask, render_template_string, request, redirect, session, url_for
+from flask import Flask, render_template_string, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
+import sqlite3, os
 
 app = Flask(__name__)
 app.secret_key = 'secretkey123'
 
-# DB 초기화 함수 (최초 1회 실행)
+# DB 초기화 함수
 def init_db():
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
@@ -67,44 +67,68 @@ def logout():
     session.pop('username', None)
     return redirect('/login')
 
-# HTML 템플릿
+# 템플릿
 register_template = """
 <!DOCTYPE html>
-<html><body>
-<h2>Register</h2>
-<form method="post">
-  Username: <input type="text" name="username" required><br>
-  Password: <input type="password" name="password" required><br>
-  <input type="submit" value="Register">
-</form>
-<a href="/login">Already have an account?</a>
-</body></html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white d-flex justify-content-center align-items-center vh-100">
+  <div class="card bg-secondary p-4">
+    <h2 class="mb-3">회원가입</h2>
+    <form method="post">
+      <input type="text" name="username" class="form-control mb-2" placeholder="아이디" required>
+      <input type="password" name="password" class="form-control mb-3" placeholder="비밀번호" required>
+      <button class="btn btn-primary w-100" type="submit">회원가입</button>
+    </form>
+    <a class="text-white mt-2" href="/login">계정이 있으신가요?</a>
+  </div>
+</body>
+</html>
 """
 
 login_template = """
 <!DOCTYPE html>
-<html><body>
-<h2>Login</h2>
-<form method="post">
-  Username: <input type="text" name="username" required><br>
-  Password: <input type="password" name="password" required><br>
-  <input type="submit" value="Login">
-</form>
-<a href="/register">Don't have an account?</a>
-</body></html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white d-flex justify-content-center align-items-center vh-100">
+  <div class="card bg-secondary p-4">
+    <h2 class="mb-3">로그인</h2>
+    <form method="post">
+      <input type="text" name="username" class="form-control mb-2" placeholder="아이디" required>
+      <input type="password" name="password" class="form-control mb-3" placeholder="비밀번호" required>
+      <button class="btn btn-success w-100" type="submit">로그인</button>
+    </form>
+    <a class="text-white mt-2" href="/register">계정이 없으신가요?</a>
+  </div>
+</body>
+</html>
 """
 
 dashboard_template = """
 <!DOCTYPE html>
-<html><body>
-<h2>Welcome, {{ username }}!</h2>
-<p>You are now logged in.</p>
-<a href="/logout">Logout</a>
-</body></html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>대시보드</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white text-center d-flex flex-column justify-content-center align-items-center vh-100">
+  <h2>환영합니다, {{ username }}!</h2>
+  <p>성공적으로 로그인되었습니다.</p>
+  <a class="btn btn-outline-light mt-3" href="/logout">로그아웃</a>
+</body>
+</html>
 """
 
 if __name__ == '__main__':
     init_db()
-    import os
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
