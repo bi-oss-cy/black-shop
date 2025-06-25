@@ -229,3 +229,68 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
+# app.py 일부 예시
+from flask import Flask, render_template, request, redirect, session, url_for
+
+app = Flask(__name__)
+app.secret_key = 'secretkey123'
+
+# 상품 목록 임시 데이터 (나중엔 DB 연결 필요)
+products = [
+    {'id': 1, 'name': '상품 A', 'price': 10000, 'stock': 5, 'description': '상품 A 설명'},
+    {'id': 2, 'name': '상품 B', 'price': 20000, 'stock': 10, 'description': '상품 B 설명'},
+]
+
+@app.route('/admin')
+def admin():
+    # 로그인 상태와 관리자 권한 체크 필요
+    return render_template('admin.html', products=products)
+
+@app.route('/products')
+def products_list():
+    return render_template('products.html', products=products)
+
+@app.route('/products/<int:product_id>')
+def product_detail(product_id):
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product:
+        return "상품이 없습니다.", 404
+    return render_template('product_detail.html', product=product)
+
+@app.route('/cart')
+def cart():
+    cart = session.get('cart', [])
+    total = sum(item['price'] * item['quantity'] for item in cart)
+    return render_template('cart.html', cart=cart, total=total)
+
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    quantity = int(request.form.get('quantity', 1))
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product or quantity > product['stock']:
+        return "수량이 올바르지 않거나 상품이 없습니다.", 400
+
+    cart = session.get('cart', [])
+    for item in cart:
+        if item['id'] == product_id:
+            item['quantity'] += quantity
+            break
+    else:
+        cart.append({'id': product_id, 'name': product['name'], 'price': product['price'], 'quantity': quantity})
+    session['cart'] = cart
+    return redirect(url_for('cart'))
+
+@app.route('/remove_from_cart/<int:product_id>')
+def remove_from_cart(product_id):
+    cart = session.get('cart', [])
+    cart = [item for item in cart if item['id'] != product_id]
+    session['cart'] = cart
+    return redirect(url_for('cart'))
+
+@app.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    if request.method == 'POST':
+        # 주문 처리 로직 작성
+        session.pop('cart', None)
+        return "결제가 완료되었습니다."
+    return render_template('checkout.html')
