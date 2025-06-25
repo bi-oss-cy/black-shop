@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>대시보드</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>환영합니다, {{ username }}!</h2>
+    <p>성공적으로 로그인 되었습니다.</p>
+    <a href="/logout">로그아웃</a>
+</body>
+</html>
