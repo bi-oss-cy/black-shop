@@ -1,0 +1,17 @@
+<!-- templates/checkout.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>결제하기</h2>
+<a href="{{ url_for('cart') }}">장바구니로 돌아가기</a>
+
+<form method="post" action="{{ url_for('checkout') }}">
+  이름: <input type="text" name="name" required><br>
+  주소: <input type="text" name="address" required><br>
+  결제 방법:
+  <select name="payment_method" required>
+    <option value="crypto">암호화폐</option>
+    <option value="card">신용카드</option>
+  </select><br>
+  <input type="submit" value="결제 완료">
+</form>
+{% endblock %}
